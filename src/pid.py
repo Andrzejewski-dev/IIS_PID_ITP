@@ -38,7 +38,7 @@ class PID:
         h = self.h_0 # wysokosc bieząca [m]
         Q_d = 0 # natezenie dopływu [m3/s]
 
-        for n in range(self.N):
+        for n in range(0, self.N):
             if n > 0:
                 (h, Q_d) = self.loop(n, h, Q_d)
             self.n_axis.append(n)
@@ -53,13 +53,14 @@ class PID:
                                              self.errors[1] - self.errors[-1]))) / 10)
 
         if (self.valveeU[-1] <= self.Qd_min):
-            self.valveeQd.append(0)
+            self.valveeQd.append(-10)
         elif (self.valveeU[-1] >= self.Qd_max):
             self.valveeQd.append(10)
         else:
             self.valveeQd.append(self.valveeU[-1])
 
-        self.Qo.append(0.25 * math.sqrt(h))
-        h = max(min(((-self.Qo[-1] + self.valveeQd[-1]) * self.Tp / self.A + h), self.h_ex), 0)
+        self.Qo.append(self.beta * math.sqrt(h))
+        h = max(min(((-self.Qo[-1] + self.valveeQd[-1]) * self.Tp / self.A + h), 10), 0)
+        Q_d = self.valveeQd[-1]
 
         return (h, Q_d)
