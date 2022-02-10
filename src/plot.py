@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from uar import UAR
+from pid import PID
 
 # uar = UAR(
 #     h_0 = 0,
@@ -22,15 +22,11 @@ pid = PID(
     Ti = 0.75,
     Td = 0.05,
     kp = 1.0,
-    Qd_min = 0
+    Qd_min = 0,
     Qd_max = 1
 )
 pid.run()
 
-
-plt.plot(uar.n_axis, uar.h_axis)
-plt.plot(uar.n_axis, uar.Qd_axis)
+plt.plot(pid.n_axis, pid.h_axis)
+plt.plot(pid.n_axis, pid.Qd_axis)
 plt.show()
-
-if __name__ == "__main__":
-    main()

@@ -29,12 +29,12 @@ class PID:
         self.n_axis = []
         self.h_axis = []
         self.Qd_axis = []
+        self.errors = [0, ]
+        self.valveeU = []
+        self.valveeQd = []
+        self.Qo = []
     
     def run(self):
-        self.n_axis = []
-        self.h_axis = []
-        self.Qd_axis = []  
-
         h = self.h_0 # wysokosc bieząca [m]
         Q_d = 0 # natezenie dopływu [m3/s]
 
@@ -46,6 +46,20 @@ class PID:
             self.Qd_axis.append(Q_d)
 
     def loop(self, n, h, Q_d):
-        h_ex = 
+        self.errors.append((self.h_ex - h) / 10)
+        self.valveeU.append(
+            (self.kp * (self.errors[-1] + (self.Tp / self.Ti) * sum(
+                self.errors) + (self.Td / self.Tp) * (
+                                             self.errors[1] - self.errors[-1]))) / 10)
+
+        if (self.valveeU[-1] <= self.Qd_min):
+            self.valveeQd.append(0)
+        elif (self.valveeU[-1] >= self.Qd_max):
+            self.valveeQd.append(10)
+        else:
+            self.valveeQd.append(self.valveeU[-1])
+
+        self.Qo.append(0.25 * math.sqrt(h))
+        h = max(min(((-self.Qo[-1] + self.valveeQd[-1]) * self.Tp / self.A + h), self.h_ex), 0)
 
         return (h, Q_d)
