@@ -23,7 +23,7 @@ class UAR:
         'u': [0.1, ],  # wartość aktualna sygnału sterującego
         'Q_d_min': 0,  # minimalne natężenie dopływu
         'Q_d_max': 1,  # maksymalne natężenie dopływu
-        'Q_d': []  # wartość aktualna natężenia dopływu
+        'Q_d': [0, ]  # wartość aktualna natężenia dopływu
     }
     tank = {
         'h_max': 10,  # maksymalny poziom substancji w zbiorniku
@@ -253,7 +253,7 @@ class UAR:
             self.fuzzy_pid['k_ce'].append(
                 (self.pid['differential_time'] / self.pid['sample_time']) / self.fuzzy_pid['k_u'][-1])
 
-            e = self.pid['h_z'][x] - self.fuzzy_pid['y'][1][x - 1]
+            e = self.pid['h_z'][0] - self.fuzzy_pid['y'][1][x - 1]
             ke = e * (1 / self.fuzzy_pid['k_e'][-1])
             temp.append(ke)
             if e > 1:
@@ -275,6 +275,7 @@ class UAR:
             cu = reg_cu.output['cu']
             self.fuzzy_pid['k_u'].append(cu * self.pid['sample_time'] + self.fuzzy_pid['k_u'][-1])
 
+            self.valvee['Q_d'].append(0)
             self.valvee['Q_d'][x] = self.fuzzy_pid['k_u'][1] * self.fuzzy_pid['k_u'][-1]
 
             if (self.valvee['Q_d'][x] > self.valvee['Q_d_max']):
@@ -286,7 +287,7 @@ class UAR:
             self.fuzzy_pid['y'][2].append(self.valvee['Q_d'][x])
             self.fuzzy_pid['y'][3].append(self.tank['B'] * (sqrt(self.fuzzy_pid['y'][1][x - 1])))
             self.fuzzy_pid['y'][1].append(((self.fuzzy_pid['y'][2][x] - self.fuzzy_pid['y'][3][x]) * obiekt.pid['sample_time']) / self.tank['A'] + self.fuzzy_pid['y'][1][x - 1])
-            self.fuzzy_pid['y'][4].append(self.pid['h_z'][x])
+            self.fuzzy_pid['y'][4].append(self.pid['h_z'][0])
 
             e_delay = e
 
@@ -312,22 +313,28 @@ class UAR:
         self.FUZZY()
         self.costsControllerFuzzy()
         self.qualityControllerFuzzy()
-        fuzzyfilePath = '/static/data/data_fuzzy.json'
-        if os.path.exists(fuzzyfilePath):
-            os.remove(fuzzyfilePath)
-        else:
-            jsonListFuzzy = []
-            for i in range(0, (len(self.x)-1)):
-                jsonListFuzzy.append({"x": float(round(self.fuzzy_pid['y'][0][i],2)), "h_z": self.fuzzy_pid['y'][4][i], "h": self.fuzzy_pid['y'][1][i],
-                                      "Q_d": self.fuzzy_pid['y'][2][i], "Q_o": self.fuzzy_pid['y'][3][i],
-                                      "e": self.fuzzy_pid['k_e'][i-1]})
-            with open('static/data/data_fuzzy.json', 'w') as d_fuzzy:
-                json.dump(jsonListFuzzy, d_fuzzy)
-            d_fuzzy.close()
-        self.resetData()
+
+        print()
+        plt.plot(self.fuzzy_pid['y'][0], self.fuzzy_pid['y'][1])
+        plt.plot(self.fuzzy_pid['y'][0], self.fuzzy_pid['y'][2])
+        plt.show()
+
+        # fuzzyfilePath = '/static/data/data_fuzzy.json'
+        # if os.path.exists(fuzzyfilePath):
+        #     os.remove(fuzzyfilePath)
+        # else:
+        #     jsonListFuzzy = []
+        #     for i in range(0, (len(self.x)-1)):
+        #         jsonListFuzzy.append({"x": float(round(self.fuzzy_pid['y'][0][i],2)), "h_z": self.fuzzy_pid['y'][4][i], "h": self.fuzzy_pid['y'][1][i],
+        #                               "Q_d": self.fuzzy_pid['y'][2][i], "Q_o": self.fuzzy_pid['y'][3][i],
+        #                               "e": self.fuzzy_pid['k_e'][i-1]})
+        #     with open('static/data/data_fuzzy.json', 'w') as d_fuzzy:
+        #         json.dump(jsonListFuzzy, d_fuzzy)
+        #     d_fuzzy.close()
+        # self.resetData()
 
 obiekt = UAR()
-obiekt.count()
+obiekt.FuzzyDisplay()
 
 
 
