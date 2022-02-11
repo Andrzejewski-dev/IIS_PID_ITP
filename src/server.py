@@ -11,7 +11,7 @@ def json_example():
     uar = UAR(
         h_0 = 0,
         h_ex = 2,
-        N = 120,
+        N = 10000,
         A = 4,
         beta = 1,
         Tp = 1
