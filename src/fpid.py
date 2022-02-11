@@ -67,6 +67,75 @@ class FPID:
             'DD': [0.5, 0.75, 1],
             'BDD': [0.75, 1, 1.25]
         }
+        self.defRules = {
+            'BDU': [
+                ('DU', 'DU'),
+                ('SU', 'DU'),
+                ('DU', 'SU'),
+                ('SU', 'SU'),
+                ('MU', 'DU'),
+                ('DU', 'MU')
+            ],
+            'DU': [
+                ('Z', 'DU'),
+                ('MU', 'SU'),
+                ('SU', 'MU'),
+                ('DU', 'Z')
+            ],
+            'SU': [
+                ('DU', 'MD'),
+                ('SU', 'Z'),
+                ('MU', 'MU'),
+                ('Z', 'SU'),
+                ('MD', 'DU')
+            ],
+            'MU': [
+                ('SD', 'DU'),
+                ('MD', 'SU'),
+                ('Z', 'MU'),
+                ('MU', 'Z'),
+                ('SU', 'MD'),
+                ('DU', 'SD')
+            ],
+            'Z': [
+                ('DU', 'DD'),
+                ('SU', 'SD'),
+                ('MU', 'MD'),
+                ('Z', 'Z'),
+                ('MD', 'MU'),
+                ('SD', 'SU'),
+                ('DD', 'DU')
+            ],
+            'MD': [
+                ('SU', 'DD'),
+                ('MU', 'SD'),
+                ('Z', 'MD'),
+                ('MD', 'Z'),
+                ('SD', 'MU'),
+                ('DD', 'SU')
+            ],
+            'SD': [
+                ('DD', 'MU'),
+                ('SD', 'Z'),
+                ('MD', 'MD'),
+                ('Z', 'SD'),
+                ('MU', 'DD')
+            ],
+            'DD': [
+                ('Z', 'DD'),
+                ('MD', 'SD'),
+                ('SD', 'MD'),
+                ('DD', 'Z')
+            ],
+            'BDD': [
+                ('DD', 'MD'),
+                ('SD', 'SD'),
+                ('MD', 'DD'),
+                ('DD', 'SD'),
+                ('SD', 'DD'),
+                ('DD', 'DD')
+            ]
+        }
         self.pid_y = [[], [], [], [], []]
         self.n_axis = [0, ]
 
@@ -141,60 +210,11 @@ class FPID:
         
         for key, value in self.defCu.items():
             self.cu[key] = fuzz.trimf(self.cu.universe, value)
+            
+        rules = []
+        for cu, e_ces in self.defRules.items():
+            for e_ce in e_ces:
+                rules.append(ctrl.Rule(self.e[e_ce[0]] & self.ce[e_ce[1]], self.cu[cu]))
 
-        
-
-        rules = [
-            ctrl.Rule(self.e[self.ins[0]] & self.ce[self.ins[0]], self.cu[self.outs[0]]),
-            ctrl.Rule(self.e[self.ins[1]] & self.ce[self.ins[0]], self.cu[self.outs[0]]),
-            ctrl.Rule(self.e[self.ins[0]] & self.ce[self.ins[1]], self.cu[self.outs[0]]),
-            ctrl.Rule(self.e[self.ins[1]] & self.ce[self.ins[1]], self.cu[self.outs[0]]),
-            ctrl.Rule(self.e[self.ins[2]] & self.ce[self.ins[0]], self.cu[self.outs[0]]),
-            ctrl.Rule(self.e[self.ins[0]] & self.ce[self.ins[2]], self.cu[self.outs[0]]),
-            ctrl.Rule(self.e[self.ins[3]] & self.ce[self.ins[0]], self.cu[self.outs[1]]),
-            ctrl.Rule(self.e[self.ins[2]] & self.ce[self.ins[1]], self.cu[self.outs[1]]),
-            ctrl.Rule(self.e[self.ins[1]] & self.ce[self.ins[2]], self.cu[self.outs[1]]),
-            ctrl.Rule(self.e[self.ins[0]] & self.ce[self.ins[3]], self.cu[self.outs[1]]),
-            ctrl.Rule(self.e[self.ins[0]] & self.ce[self.ins[4]], self.cu[self.outs[2]]),
-            ctrl.Rule(self.e[self.ins[1]] & self.ce[self.ins[3]], self.cu[self.outs[2]]),
-            ctrl.Rule(self.e[self.ins[2]] & self.ce[self.ins[2]], self.cu[self.outs[2]]),
-            ctrl.Rule(self.e[self.ins[3]] & self.ce[self.ins[1]], self.cu[self.outs[2]]),
-            ctrl.Rule(self.e[self.ins[4]] & self.ce[self.ins[0]], self.cu[self.outs[2]]),
-            ctrl.Rule(self.e[self.ins[5]] & self.ce[self.ins[0]], self.cu[self.outs[3]]),
-            ctrl.Rule(self.e[self.ins[4]] & self.ce[self.ins[1]], self.cu[self.outs[3]]),
-            ctrl.Rule(self.e[self.ins[3]] & self.ce[self.ins[2]], self.cu[self.outs[3]]),
-            ctrl.Rule(self.e[self.ins[2]] & self.ce[self.ins[3]], self.cu[self.outs[3]]),
-            ctrl.Rule(self.e[self.ins[1]] & self.ce[self.ins[4]], self.cu[self.outs[3]]),
-            ctrl.Rule(self.e[self.ins[0]] & self.ce[self.ins[5]], self.cu[self.outs[3]]),
-            ctrl.Rule(self.e[self.ins[0]] & self.ce[self.ins[6]], self.cu[self.outs[4]]),
-            ctrl.Rule(self.e[self.ins[1]] & self.ce[self.ins[5]], self.cu[self.outs[4]]),
-            ctrl.Rule(self.e[self.ins[2]] & self.ce[self.ins[4]], self.cu[self.outs[4]]),
-            ctrl.Rule(self.e[self.ins[3]] & self.ce[self.ins[3]], self.cu[self.outs[4]]),
-            ctrl.Rule(self.e[self.ins[4]] & self.ce[self.ins[2]], self.cu[self.outs[4]]),
-            ctrl.Rule(self.e[self.ins[5]] & self.ce[self.ins[1]], self.cu[self.outs[4]]),
-            ctrl.Rule(self.e[self.ins[6]] & self.ce[self.ins[0]], self.cu[self.outs[4]]),
-            ctrl.Rule(self.e[self.ins[1]] & self.ce[self.ins[6]], self.cu[self.outs[5]]),
-            ctrl.Rule(self.e[self.ins[2]] & self.ce[self.ins[5]], self.cu[self.outs[5]]),
-            ctrl.Rule(self.e[self.ins[3]] & self.ce[self.ins[4]], self.cu[self.outs[5]]),
-            ctrl.Rule(self.e[self.ins[4]] & self.ce[self.ins[3]], self.cu[self.outs[5]]),
-            ctrl.Rule(self.e[self.ins[5]] & self.ce[self.ins[2]], self.cu[self.outs[5]]),
-            ctrl.Rule(self.e[self.ins[6]] & self.ce[self.ins[1]], self.cu[self.outs[5]]),
-            ctrl.Rule(self.e[self.ins[6]] & self.ce[self.ins[2]], self.cu[self.outs[6]]),
-            ctrl.Rule(self.e[self.ins[5]] & self.ce[self.ins[3]], self.cu[self.outs[6]]),
-            ctrl.Rule(self.e[self.ins[4]] & self.ce[self.ins[4]], self.cu[self.outs[6]]),
-            ctrl.Rule(self.e[self.ins[3]] & self.ce[self.ins[5]], self.cu[self.outs[6]]),
-            ctrl.Rule(self.e[self.ins[2]] & self.ce[self.ins[6]], self.cu[self.outs[6]]),
-            ctrl.Rule(self.e[self.ins[3]] & self.ce[self.ins[6]], self.cu[self.outs[7]]),
-            ctrl.Rule(self.e[self.ins[4]] & self.ce[self.ins[5]], self.cu[self.outs[7]]),
-            ctrl.Rule(self.e[self.ins[5]] & self.ce[self.ins[4]], self.cu[self.outs[7]]),
-            ctrl.Rule(self.e[self.ins[6]] & self.ce[self.ins[3]], self.cu[self.outs[7]]),
-            ctrl.Rule(self.e[self.ins[6]] & self.ce[self.ins[4]], self.cu[self.outs[8]]),
-            ctrl.Rule(self.e[self.ins[5]] & self.ce[self.ins[5]], self.cu[self.outs[8]]),
-            ctrl.Rule(self.e[self.ins[4]] & self.ce[self.ins[6]], self.cu[self.outs[8]]),
-            ctrl.Rule(self.e[self.ins[6]] & self.ce[self.ins[5]], self.cu[self.outs[8]]),
-            ctrl.Rule(self.e[self.ins[5]] & self.ce[self.ins[6]], self.cu[self.outs[8]]),
-            ctrl.Rule(self.e[self.ins[6]] & self.ce[self.ins[6]], self.cu[self.outs[8]]),
-        ]
-     
         return rules
         
