@@ -111,13 +111,19 @@ const data = {
     labels: [],
     datasets: [
         {
-            label: 'Natężenie dopływu',
+            label: 'Zadana wysokość',
+            backgroundColor: 'rgb(128, 128, 255)',
+            borderColor: 'rgb(128, 128, 255)',
+            data: []
+        },
+        {
+            label: 'Wysokość w zbiorniku',
             backgroundColor: 'rgb(255, 99, 132)',
             borderColor: 'rgb(255, 99, 132)',
             data: [],
         },
         {
-            label: 'Wysokość w zbiorniku',
+            label: 'Natężenie dopływu',
             backgroundColor: 'rgb(128, 255, 128)',
             borderColor: 'rgb(128, 255, 128)',
             data: []
@@ -154,8 +160,9 @@ function updateData(type) {
         url: `/${type}?h=${$(`[data-for="${type}"][data-query-name="h"]`).val()}${pid}`,
     }).done(function(data) {
         charts[type].data.labels = data.n_axis;
-        charts[type].data.datasets[0].data = data.Qd_axis;
+        charts[type].data.datasets[0].data = data.n_axis.map(element => +$(`[data-for="${type}"][data-query-name="h"]`).val());
         charts[type].data.datasets[1].data = data.h_axis;
+        charts[type].data.datasets[2].data = data.Qd_axis;
         charts[type].update();
     });
 }
