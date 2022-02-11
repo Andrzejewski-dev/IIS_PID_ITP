@@ -1,7 +1,13 @@
 from flask import Flask, request, jsonify, render_template
 from uar import UAR
+from fpid import FPID
+from pid import PID
 
 app = Flask(__name__)
+
+@app.route('/')
+def homepage():
+    return render_template('index.html')
 
 @app.route('/uar')
 def json_example():
@@ -11,7 +17,7 @@ def json_example():
     uar = UAR(
         h_0 = 0,
         h_ex = 2,
-        N = 10000,
+        N = 160,
         A = 4,
         beta = 1,
         Tp = 1
@@ -24,9 +30,49 @@ def json_example():
         'Qd_axis': uar.Qd_axis
     })
 
-@app.route('/')
-def homepage():
-    return render_template('index.html')
+@app.route('/pid')
+def pid():
+    pid = PID(
+        h_0 = 0,
+        h_ex = 2,
+        N = 6000,
+        A = 2.5,
+        beta = 0.25,
+        Tp = 0.05,
+        Ti = 0.75,
+        Td = 0.05,
+        kp = 1.0,
+        Qd_min = 0,
+        Qd_max = 1
+    )
+    pid.run()
+
+    return jsonify({
+        'n_axis': pid.n_axis,
+        'h_axis': pid.h_axis,
+        'Qd_axis': pid.valveeQd
+    })
+
+@app.route('/fpid')
+def fpid():
+    fpid = FPID(
+        h_0 = 0,
+        h_ex = 2,
+        N = 1300,
+        A = 2.5,
+        beta = 0.25,
+        Tp = 0.05,
+        Td = 0.05,
+        kp = 1.0,
+        Qd_min = 0,
+        Qd_max = 1
+    )
+
+    return jsonify({
+        'n_axis': fpid.n_axis,
+        'h_axis': fpid.pid_y[1],
+        'Qd_axis': fpid.pid_y[2]
+    })
 
 
 if __name__ == '__main__':
