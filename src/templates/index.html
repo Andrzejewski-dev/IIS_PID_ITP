@@ -9,15 +9,17 @@
 </head>
 <body>
     <div style="width: 800px;">
-        <canvas id="myChart"></canvas>
+        <canvas id="myChart-uar"></canvas>
+        <hr />
+        <canvas id="myChart-pid"></canvas>
+        <hr />
+        <canvas id="myChart-fpid"></canvas>
     </div> 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
     <script>
-
-
 const data = {
     labels: [],
     datasets: [
@@ -36,7 +38,7 @@ const data = {
     ]
 };
 
-const config = {
+const defConfig = (type) => ({
     type: 'line',
     data: data,
     options: {
@@ -52,31 +54,40 @@ const config = {
                 stepSize: 100
                 },
             }]
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: type.toUpperCase()
+            }
         }
     }
-};
+});
 
 
-const chart = new Chart(
-    document.getElementById('myChart'),
-    config
-);
+const types = ['uar', 'pid', 'fpid'];
+const charts = {};
 
-function updateData() {
+
+function updateData(type) {
     $.ajax({
-        url: "/uar",
+        url: `/uar`,
     }).done(function(data) {
-        console.log(data);
-        console.log(chart);
-        chart.data.labels = data.n_axis;
-        chart.data.datasets[0].data = data.Qd_axis;
-        chart.data.datasets[1].data = data.h_axis;
-        chart.update();
+        charts[type].data.labels = data.n_axis;
+        charts[type].data.datasets[0].data = data.Qd_axis;
+        charts[type].data.datasets[1].data = data.h_axis;
+        charts[type].update();
     });
 }
 
 $(() => {
-    updateData();
+    for(const type of types) {
+        charts[type] = new Chart(
+            document.getElementById(`myChart-${type}`),
+            defConfig(type)
+        );
+        updateData(type);
+    }
 });
 
     </script>
