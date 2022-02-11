@@ -11,12 +11,11 @@ def homepage():
 
 @app.route('/uar')
 def json_example():
-    # args = request.args
-    # args.get('p')
+    args = request.args
 
     uar = UAR(
         h_0 = 0,
-        h_ex = 2,
+        h_ex = float(args.get('h', 2)),
         N = 160,
         A = 4,
         beta = 1,
@@ -32,18 +31,20 @@ def json_example():
 
 @app.route('/pid')
 def pid():
+    args = request.args
+
     pid = PID(
         h_0 = 0,
-        h_ex = 2,
+        h_ex = float(args.get('h', 2)),
         N = 6000,
         A = 2.5,
         beta = 0.25,
-        Tp = 0.05,
-        Ti = 0.75,
-        Td = 0.05,
+        Tp = float(args.get('p', 0.05)),
+        Td = float(args.get('d', 0.05)),
+        Ti = float(args.get('d', 0.75)),
         kp = 1.0,
         Qd_min = 0,
-        Qd_max = 1
+        Qd_max = float(args.get('qd', 2)),
     )
     pid.run()
 
@@ -55,17 +56,19 @@ def pid():
 
 @app.route('/fpid')
 def fpid():
+    args = request.args
+
     fpid = FPID(
         h_0 = 0,
-        h_ex = 2,
+        h_ex = float(args.get('h', 2)),
         N = 1300,
         A = 2.5,
         beta = 0.25,
-        Tp = 0.05,
-        Td = 0.05,
+        Tp = float(args.get('p', 0.05)),
+        Td = float(args.get('d', 0.05)),
         kp = 1.0,
         Qd_min = 0,
-        Qd_max = 1
+        Qd_max = float(args.get('qd', 2)),
     )
 
     return jsonify({

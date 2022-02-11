@@ -53,9 +53,9 @@ class PID:
                                              self.errors[1] - self.errors[-1]))) / 10)
 
         if (self.valveeU[-1] <= self.Qd_min):
-            self.valveeQd.append(-10)
+            self.valveeQd.append(self.Qd_min)
         elif (self.valveeU[-1] >= self.Qd_max):
-            self.valveeQd.append(10)
+            self.valveeQd.append(self.Qd_max)
         else:
             self.valveeQd.append(self.valveeU[-1])
 
