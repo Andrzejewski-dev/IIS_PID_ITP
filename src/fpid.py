@@ -38,6 +38,35 @@ class FPID:
         self.k_u = []
         self.ins = ['DU', 'SU', 'MU', 'Z', 'MD', 'SD', 'DD']
         self.outs = ['BDU', 'DU', 'SU', 'MU', 'Z', 'MD', 'SD', 'DD', 'BDD']
+        self.defE = {
+            'DU': [-1.3, -1, -0.667],
+            'SU': [-1, -0.667, -0.333],
+            'MU': [-0.667, -0.333, 0.0],
+            'Z': [-0.333, 0.0, 0.333],
+            'MD': [0.0, 0.333, 0.667],
+            'SD': [0.333, 0.667, 1],
+            'DD': [0.667, 1, 1.33]
+        }
+        self.defCe = {
+            'DU': [-1.3, -1, -0.667],
+            'SU': [-1, -0.667, -0.333],
+            'MU': [-0.667, -0.333, 0.0],
+            'Z': [-0.333, 0.0, 0.333],
+            'MD': [0.0, 0.333, 0.667],
+            'SD': [0.333, 0.667, 1],
+            'DD': [0.667, 1, 1.33]
+        }
+        self.defCu = {
+            'BDU': [-1.25, -1, -0.75],
+            'DU': [-1, -0.75, -0.5],
+            'SU': [-0.75, -0.5, -0.25],
+            'MU': [-0.5, -0.25, 0],
+            'Z': [-0.25, 0.0, 0.25],
+            'MD': [0, 0.25, 0.5],
+            'SD': [0.25, 0.5, 0.75],
+            'DD': [0.5, 0.75, 1],
+            'BDD': [0.75, 1, 1.25]
+        }
         self.pid_y = [[], [], [], [], []]
         self.n_axis = [0, ]
 
@@ -103,37 +132,17 @@ class FPID:
         self.ce = ctrl.Antecedent(np.arange(-1, 1, 0.01), 'ce')
         self.cu = ctrl.Consequent(np.arange(-1, 1, 0.01), 'cu')
 
-        self.e = {
-            'DU': fuzz.trimf(self.e.universe, [-1.3, -1, -0.667]),
-            'SU': fuzz.trimf(self.e.universe, [-1, -0.667, -0.333]),
-            'MU': fuzz.trimf(self.e.universe, [-0.667, -0.333, 0.0]),
-            'Z': fuzz.trimf(self.e.universe, [-0.333, 0.0, 0.333]),
-            'MD': fuzz.trimf(self.e.universe, [0.0, 0.333, 0.667]),
-            'SD': fuzz.trimf(self.e.universe, [0.333, 0.667, 1]),
-            'DD': fuzz.trimf(self.e.universe, [0.667, 1, 1.33])
-        }
+        for key, value in self.defE.items():
+            self.e[key] = fuzz.trimf(self.e.universe, value)
 
-        self.ce = {
-            'DU': fuzz.trimf(self.ce.universe, [-1.3, -1, -0.667]),
-            'SU': fuzz.trimf(self.ce.universe, [-1, -0.667, -0.333]),
-            'MU': fuzz.trimf(self.ce.universe, [-0.667, -0.333, 0.0]),
-            'Z': fuzz.trimf(self.ce.universe, [-0.333, 0.0, 0.333]),
-            'MD': fuzz.trimf(self.ce.universe, [0.0, 0.333, 0.667]),
-            'SD': fuzz.trimf(self.ce.universe, [0.333, 0.667, 1]),
-            'DD': fuzz.trimf(self.ce.universe, [0.667, 1, 1.33])
-        }
+        for key, value in self.defCe.items():
+            self.ce[key] = fuzz.trimf(self.ce.universe, value)
         
-        self.cu = {
-            'BDU': fuzz.trimf(self.cu.universe, [-1.25, -1, -0.75]),
-            'DU': fuzz.trimf(self.cu.universe, [-1, -0.75, -0.5]),
-            'SU': fuzz.trimf(self.cu.universe, [-0.75, -0.5, -0.25]),
-            'MU': fuzz.trimf(self.cu.universe, [-0.5, -0.25, 0]),
-            'Z': fuzz.trimf(self.cu.universe, [-0.25, 0.0, 0.25]),
-            'MD': fuzz.trimf(self.cu.universe, [0, 0.25, 0.5]),
-            'SD': fuzz.trimf(self.cu.universe, [0.25, 0.5, 0.75]),
-            'DD': fuzz.trimf(self.cu.universe, [0.5, 0.75, 1]),
-            'BDD': fuzz.trimf(self.cu.universe, [0.75, 1, 1.25])
-        }
+        
+        for key, value in self.defCu.items():
+            self.cu[key] = fuzz.trimf(self.cu.universe, value)
+
+        
 
         rules = [
             ctrl.Rule(self.e[self.ins[0]] & self.ce[self.ins[0]], self.cu[self.outs[0]]),
