@@ -71,7 +71,7 @@ const charts = {};
 
 function updateData(type) {
     $.ajax({
-        url: `/uar`,
+        url: `/${type}`,
     }).done(function(data) {
         charts[type].data.labels = data.n_axis;
         charts[type].data.datasets[0].data = data.Qd_axis;
